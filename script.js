@@ -188,3 +188,12 @@ function sendOrder() {
 }
 
 renderMenus();
+document.getElementById("secretBtn").addEventListener("click", function () {
+  const input = prompt("กรุณาใส่รหัสผ่าน:");
+  if (input === "020116") { // 🔐
+    document.getElementById("adminBtn").style.display = "inline-block";
+    alert("เข้าสู่โหมดแอดมินแล้ว");
+  } else {
+    alert("รหัสผิด");
+  }
+});
