@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>เมนูร้านส้มตำส้มดีอร่อยดี</title>
+  <link rel="stylesheet" href="stly.css" />
+</head>
+<body>
+
+  <h1>เมนูร้านส้มตำส้มดีอร่อยดี</h1>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('lao', event)">เหลารวม</button>
+    <button class="tab-btn" onclick="showTab('season', event)">เมนูตามฤดู</button>
+    <button class="tab-btn" onclick="showTab('tum', event)">เมนูตำ</button>
+    <button class="tab-btn" onclick="showTab('topping', event)">ท็อปปิ้ง</button>
+  </div>
+
+  <div id="lao" class="menu-section active"></div>
+  <div id="season" class="menu-section"></div>
+  <div id="tum" class="menu-section"></div>
+  <div id="topping" class="menu-section"></div>
+
+  <div style="margin-top: 20px; max-width: 600px; width: 100%; text-align: center;">
+    <p>ยอดรวม: <span id="totalPrice">0</span> บาท</p>
+    <label for="paymentMethod">วิธีชำระเงิน:</label>
+    <select id="paymentMethod" onchange="togglePromptPay()">
+      <option value="เงินสด">เงินสด</option>
+      <option value="พร้อมเพย์">พร้อมเพย์</option>
+    </select>
+  </div>
+
+  <div id="promptpaySection" style="display:none; user-select:none;">
+    <p>สแกน QR พร้อมเพย์ เพื่อชำระเงิน</p>
+   <img src="promptpay-qr.png.jpg" alt="QR พร้อมเพย์" style="max-width: 200px; margin: 0 auto; display: block;">
+    <p>พร้อมเพย์: <strong>0801138627</strong></p>
+  </div>
+
+  <button id="sendOrderBtn" onclick="sendOrder()">ส่งคำสั่งซื้อ</button>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

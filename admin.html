@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - ออเดอร์ส้มตำ</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      color: #fff;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    #auth, #orders {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2rem;
+      border-radius: 2rem;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .order {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .status {
+      margin-top: 0.5rem;
+    }
+
+    select, input[type="password"], button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid #555;
+      padding: 0.5rem 1rem;
+      border-radius: 0.8rem;
+      font-size: 1rem;
+      outline: none;
+      margin-top: 0.5rem;
+    }
+
+    button {
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>หน้าจัดการออเดอร์ 🍽️</h1>
+  <div id="auth">
+    <label>รหัสแอดมิน: <input type="password" id="adminPass" /></label>
+    <button onclick="login()">เข้าสู่ระบบ</button>
+  </div>
+
+  <div id="orders" style="display:none">
+    <h2>รายการสั่งซื้อ</h2>
+    <div id="orderList"></div>
+  </div>
+
+  <audio id="notifySound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS__oDn1BoIBG8TiYQks6mFwQd9sBFn_Q",
+      authDomain: "somtam-da7ab.firebaseapp.com",
+      databaseURL: "https://somtam-da7ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "somtam-da7ab",
+      storageBucket: "somtam-da7ab.appspot.com",
+      messagingSenderId: "388718531258",
+      appId: "1:388718531258:web:f673d147f1c3357d4ea883",
+      measurementId: "G-T2MC23C0DJ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ordersRef = db.ref("orders");
+    const notifySound = document.getElementById("notifySound");
+
+    let isLoggedIn = false;
+
+    function login() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "020116") {
+        isLoggedIn = true;
+        document.getElementById("auth").style.display = "none";
+        document.getElementById("orders").style.display = "block";
+        listenForOrders();
+      } else {
+        alert("รหัสผ่านไม่ถูกต้อง");
+      }
+    }
+
+    function listenForOrders() {
+      ordersRef.on("child_added", (snapshot) => {
+        const order = snapshot.val();
+        addOrderToList(snapshot.key, order);
+        notifySound.play();
+      });
+    }
+
+    function addOrderToList(key, order) {
+      const div = document.createElement("div");
+      div.className = "order";
+      div.innerHTML = `
+        <strong>${order.name || "ไม่ทราบชื่อ"}</strong><br/>
+        รายการ: ${order.items || "ไม่มีข้อมูล"}<br/>
+        รวม: ${order.total || "0"} บาท
+        <div class="status">
+          สถานะ:
+          <select onchange="updateStatus('${key}', this.value)">
+            <option value="pending">รอดำเนินการ</option>
+            <option value="preparing">กำลังเตรียม</option>
+            <option value="done">เสร็จแล้ว</option>
+          </select>
+        </div>
+      `;
+      document.getElementById("orderList").prepend(div);
+    }
+
+    function updateStatus(orderId, status) {
+      ordersRef.child(orderId).update({ status });
+    }
+  </script>
+</body>
+</html>
