@@ -81,38 +81,35 @@ button {
   cursor: pointer;
 }
 
-.payment-methods {
-  max-width:500px;
-  margin: 20px auto;
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-}
-
-.pay-btn {
-  flex: 1;
-  padding: 40px; 
-  background: var(--glass-bg);
+.large-input {
+  padding: 12px;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 400px;
   border: 1px solid var(--glass-border);
-  border-radius: 100px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   color: var(--text-color);
-  font-weight: bold;
-  text-align: center;
+  display: block;
+  margin: 0 auto 0.5rem auto;
+}
+
+.large-button {
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  border-radius: 12px;
+  display: block;
+  margin: 1rem auto;
   cursor: pointer;
-  user-select: none;
-  transition: background 0.3s, color 0.3s;
 }
 
-.pay-btn.active {
-  background: var(--highlight);
-  color: #fff;
-  box-shadow: 0 0 10px var(--highlight);
-}
-
-#promptpaySection {
-  display: none;
+p.total {
   text-align: center;
-  margin-top: 1rem;
+  font-size: 1.2rem;
+  margin-top: 20px;
+  font-weight: bold;
 }
 
 #orderSummary {
@@ -125,30 +122,84 @@ button {
   color: var(--text-color);
   white-space: pre-line;
   min-height: 80px;
+  font-size: 1rem;
 }
 
-p.total {
-  text-align: center;
-  font-size: 1.2rem;
-  margin-top: 20px;
+#orderIdDisplay {
   font-weight: bold;
+  font-size: 1.4rem;
+  text-align: center;
+  color: var(--highlight);
+  margin-top: 1rem;
 }
 
-.large-input {
-  padding: 12px;
-  font-size: 1.2rem;
-  border-radius: 12px;
-  width: 80%;
-  max-width: 400px;
-  border: 1px solid var(--glass-border);
+.payment-methods {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.pay-btn {
+  padding: 10px 20px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
   color: var(--text-color);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s;
+  font-weight: bold;
 }
 
-.large-button {
-  padding: 15px 40px;
-  font-size: 1.2rem;
-  border-radius: 12px;
+.pay-btn.active {
+  background: var(--highlight);
+}
+
+#promptpaySection {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+#promptpayQR {
+  max-width: 200px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 0 10px var(--highlight);
+}
+
+/* Popup */
+#queuePopup {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.95);
+  color: white;
+  font-size: 2.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  flex-direction: column;
+}
+
+#queuePopup p {
+  margin: 0.5rem 0;
+}
+
+#queuePopup button {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  border: none;
+  background: var(--highlight);
+  color: white;
+  cursor: pointer;
 }
