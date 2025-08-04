@@ -1,3 +1,16 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyBS__oDn1BoIBG8TiYQks6mFwQd9sBFn_Q",
+  authDomain: "somtam-da7ab.firebaseapp.com",
+  databaseURL: "https://somtam-da7ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "somtam-da7ab",
+  storageBucket: "somtam-da7ab.appspot.com",
+  messagingSenderId: "388718531258",
+  appId: "1:388718531258:web:f673d147f1c3357d4ea883"
+};
+firebase.initializeApp(firebaseConfig);
+
+const PROMPTPAY_NUMBER = "0801138627";
+const cart = {};
 let latestOrderKey = null;
 
 const menu = {
@@ -48,19 +61,21 @@ const menu = {
     { name: "ขนมจีน", price: 5 }
   ]
 };
-
-const cart = {};
-const PROMPTPAY_NUMBER = "0801138627";
+function showTab(tabId, event) {
+  document.querySelectorAll('.menu-section').forEach(section => {
+    section.classList.remove('active');
+  });
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.getElementById(tabId).classList.add('active');
+  if (event && event.target) {
+    event.target.classList.add('active');
+  }
+}
 
 function escapeId(name) {
   return btoa(unescape(encodeURIComponent(name))).replace(/=+$/, '');
-}
-
-function showTab(tabId, event) {
-  document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(tabId).classList.add('active');
-  event.target.classList.add('active');
 }
 
 function renderMenus() {
@@ -106,9 +121,7 @@ function findPriceByName(name) {
 function updateTotalPrice() {
   let total = 0;
   for (const [name, qty] of Object.entries(cart)) {
-    if (qty > 0) {
-      total += findPriceByName(name) * qty;
-    }
+    if (qty > 0) total += findPriceByName(name) * qty;
   }
   document.getElementById('totalPrice').textContent = total.toFixed(2);
   updatePromptPayQR(total);
@@ -135,14 +148,15 @@ function selectPayment(btn) {
   btn.classList.add('active');
   const method = btn.getAttribute('data-method');
   const promptpaySection = document.getElementById('promptpaySection');
-  if (method === 'พร้อมเพย์') {
-    promptpaySection.style.display = 'block';
-  } else {
-    promptpaySection.style.display = 'none';
-  }
+  promptpaySection.style.display = method === 'พร้อมเพย์' ? 'block' : 'none';
 }
 
-function sendOrder() {
+function playOrderSound() {
+  const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
+  audio.play();
+}
+
+async function sendOrder() {
   const items = [];
   let total = 0;
   for (const [name, qty] of Object.entries(cart)) {
@@ -166,51 +180,43 @@ function sendOrder() {
     return;
   }
 
-  const orderData = {
-    name: customerName,
-    items,
-    total,
-    paymentMethod: document.querySelector('.pay-btn.active')?.getAttribute('data-method') || 'เงินสด',
-    note: orderNote,
-    timestamp: new Date().toISOString()
-  };
-
   const db = firebase.database();
-  const orderRef = db.ref("orders").push();
-  latestOrderKey = orderRef.key;
 
-  orderRef.set(orderData)
-    .then(() => {
-      alert("ส่งคำสั่งซื้อเรียบร้อยแล้ว!");
-      resetCart();
-      document.getElementById("deleteOrderBtn").style.display = "inline-block";
-    })
-    .catch(err => {
-      console.error("ส่งคำสั่งซื้อผิดพลาด:", err);
-      alert("เกิดข้อผิดพลาดในการส่งคำสั่งซื้อ");
-    });
-}
+  try {
+    const lastOrderSnap = await db.ref("lastOrderNumber").get();
+    let lastOrderNumber = lastOrderSnap.exists() ? lastOrderSnap.val() : 0;
 
-function deleteMyOrder() {
-  if (!latestOrderKey) {
-    alert("ยังไม่มีออเดอร์ล่าสุดให้ลบ");
-    return;
+    let newOrderNumber = lastOrderNumber + 1;
+    if (newOrderNumber > 9999) newOrderNumber = 1;
+
+    const orderData = {
+      orderNumber: newOrderNumber,
+      name: customerName,
+      items,
+      total,
+      paymentMethod: document.querySelector('.pay-btn.active')?.getAttribute('data-method') || 'เงินสด',
+      note: orderNote,
+      timestamp: new Date().toISOString()
+    };
+
+    const orderRef = db.ref("orders").push();
+    latestOrderKey = orderRef.key;
+
+    await orderRef.set(orderData);
+
+    showQueuePopup(newOrderNumber);
+
+    await db.ref("lastOrderNumber").set(newOrderNumber);
+
+    playOrderSound();
+
+    document.getElementById('orderIdDisplay').textContent = `หมายเลขคิวของคุณคือ: ${newOrderNumber}`;
+    resetCart();
+
+  } catch (err) {
+    console.error("ส่งคำสั่งซื้อผิดพลาด:", err);
+    alert("เกิดข้อผิดพลาดในการส่งคำสั่งซื้อ");
   }
-
-  const sure = confirm("คุณแน่ใจหรือไม่ว่าต้องการลบออเดอร์ล่าสุด?");
-  if (!sure) return;
-
-  const db = firebase.database();
-  db.ref("orders/" + latestOrderKey).remove()
-    .then(() => {
-      alert("ลบออเดอร์เรียบร้อยแล้ว");
-      latestOrderKey = null;
-      document.getElementById("deleteOrderBtn").style.display = "none";
-    })
-    .catch(err => {
-      console.error("ลบออเดอร์ผิดพลาด:", err);
-      alert("เกิดข้อผิดพลาดในการลบออเดอร์");
-    });
 }
 
 function resetCart() {
@@ -222,8 +228,18 @@ function resetCart() {
   document.getElementById('orderNote').value = "";
   updateTotalPrice();
   updateOrderSummary();
-  document.getElementById("deleteOrderBtn").style.display = "none";
+  document.getElementById('orderIdDisplay').textContent = "";
 }
 
+function showQueuePopup(number) {
+  document.getElementById("popupQueueNumber").textContent = number;
+  document.getElementById("queuePopup").style.display = "flex";
+}
+
+function closeQueuePopup() {
+  document.getElementById("queuePopup").style.display = "none";
+}
+
+document.getElementById("queuePopup").querySelector("button").addEventListener("click", closeQueuePopup);
 
 renderMenus();
