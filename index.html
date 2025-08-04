@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>เมนูร้านส้มตำส้มดีอร่อยดี</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h1>เมนูร้านส้มตำส้มดีอร่อยดี</h1>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('lao', event)">เหลารวม</button>
+    <button class="tab-btn" onclick="showTab('season', event)">เมนูตามฤดู</button>
+    <button class="tab-btn" onclick="showTab('tum', event)">เมนูตำ</button>
+    <button class="tab-btn" onclick="showTab('topping', event)">ท็อปปิ้ง</button>
+  </div>
+
+  <div id="lao" class="menu-section active"></div>
+  <div id="season" class="menu-section"></div>
+  <div id="tum" class="menu-section"></div>
+  <div id="topping" class="menu-section"></div>
+
+  <div class="payment-methods">
+    <div class="pay-btn active" data-method="เงินสด" onclick="selectPayment(this)">เงินสด</div>
+    <div class="pay-btn" data-method="พร้อมเพย์" onclick="selectPayment(this)">พร้อมเพย์</div>
+  </div>
+<div style="text-align:center; margin-top: 1rem;">
+  <input type="text" id="customerName" placeholder="ชื่อลูกค้า" class="large-input" />
+</div>
+
+<div style="text-align:center; margin-top: 0.5rem;">
+  <textarea id="orderNote" placeholder="หมายเหตุเพิ่มเติม..." class="large-input" rows="3" style="resize:none;"></textarea>
+</div>
+
+  <div id="promptpaySection">
+    <p>สแกน QR พร้อมเพย์ เพื่อชำระเงิน</p>
+    <img id="promptpayQR" src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=0801138627" alt="QR พร้อมเพย์" />
+    <p>พร้อมเพย์: <strong id="promptpayNumber">0801138627</strong></p>
+  </div>
+
+  <p class="total">รวมทั้งหมด: <span id="totalPrice">0.00</span> บาท</p>
+
+  <div style="text-align:center;">
+    <button onclick="sendOrder()" class="large-button">ส่งคำสั่งซื้อ</button>
+  </div>
+
+  <div style="text-align:center; margin-top:10px;">
+    <button id="deleteOrderBtn" onclick="deleteMyOrder()" style="display: none; background: red; color: white; padding: 10px 20px; border-radius: 8px; border: none;">❌ ลบออเดอร์ล่าสุด</button>
+  </div>
+
+  <div id="orderSummary"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBS__oDn1BoIBG8TiYQks6mFwQd9sBFn_Q",
+      authDomain: "somtam-da7ab.firebaseapp.com",
+      databaseURL: "https://somtam-da7ab-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "somtam-da7ab",
+      storageBucket: "somtam-da7ab.appspot.com",
+      messagingSenderId: "388718531258",
+      appId: "1:388718531258:web:f673d147f1c3357d4ea883"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
